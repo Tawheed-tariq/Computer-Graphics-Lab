@@ -1,32 +1,33 @@
 #include<stdio.h>
 #include<GL/glut.h>
-#define outcode int
+#define int int
 
 double xmin=100,ymin=100,xmax=300,ymax=300;
 double xvmin=200,yvmin=200,xvmax=300,yvmax=300;
-double x0=20,y0=80,x1=420,y1=320; // Predefined line points
-const int RIGHT=8;
-const int LEFT=2;
-const int TOP=4;
-const int BOTTOM=1;
-outcode ComputeOutCode(double x, double y);
+double x1=20,y1=80,x2=420,y2=320; 
+const int RIGHT=2;
+const int LEFT=1;
+const int TOP=8;
+const int BOTTOM=4;
+int ComputeOutCode(double x, double y);
 
-void CohenSutherland(double x0, double y0, double x1, double y1)
+void CohenSutherland(double x1, double y1, double x2, double y2)
 {
-    outcode outcode0, outcode1, outcodeOut;
+    int outcode0, outcode1, outcodeOut;
     bool accept=false, done=false;
-    outcode0=ComputeOutCode(x0,y0);
-    outcode1=ComputeOutCode(x1,y1);
-    double clipped_x0=x0, clipped_y0=y0, clipped_x1=x1, clipped_y1=y1;
+    outcode0=ComputeOutCode(x1,y1);
+    outcode1=ComputeOutCode(x2,y2);
+    double clipped_x1=x1, clipped_y1=y1, clipped_x2=x2, clipped_y2=y2;
     
     do
     {
-        if(!(outcode0 | outcode1))
-        {
+        if(!(outcode0 | outcode1)) //0000
+        {   //completely inside
             accept=true;
             done=true;
         }
-        else if(outcode0 & outcode1)
+        else if(outcode0 & outcode1) //non-zero
+            //completely outside
             done=true;
         else
         {
@@ -34,55 +35,54 @@ void CohenSutherland(double x0, double y0, double x1, double y1)
             outcodeOut=outcode0?outcode0:outcode1;
             if(outcodeOut & TOP)
             {
-                x=clipped_x0+(clipped_x1-clipped_x0)*(ymax-clipped_y0)/(clipped_y1-clipped_y0);
+                x=clipped_x1+(clipped_x2-clipped_x1)*(ymax-clipped_y1)/(clipped_y2-clipped_y1);
                 y=ymax;
             }
             else if(outcodeOut & BOTTOM)
             {
-                x=clipped_x0+(clipped_x1-clipped_x0)*(ymin-clipped_y0)/(clipped_y1-clipped_y0);
+                x=clipped_x1+(clipped_x2-clipped_x1)*(ymin-clipped_y1)/(clipped_y2-clipped_y1);
                 y=ymin;
             }
             else if(outcodeOut & RIGHT)
             {
-                y=clipped_y0+(clipped_y1-clipped_y0)*(xmax-clipped_x0)/(clipped_x1-clipped_x0);
+                y=clipped_y1+(clipped_y2-clipped_y1)*(xmax-clipped_x1)/(clipped_x2-clipped_x1);
                 x=xmax;
             }
             else
             {
-                y=clipped_y0+(clipped_y1-clipped_y0)*(xmin-clipped_x0)/(clipped_x1-clipped_x0);
+                y=clipped_y1+(clipped_y2-clipped_y1)*(xmin-clipped_x1)/(clipped_x2-clipped_x1);
                 x=xmin;
             }
             if(outcodeOut==outcode0)
             {
-                clipped_x0=x;
-                clipped_y0=y;
-                outcode0=ComputeOutCode(clipped_x0,clipped_y0);
+                clipped_x1=x;
+                clipped_y1=y;
+                outcode0=ComputeOutCode(clipped_x1,clipped_y1);
             }
             else
             {
-                clipped_x1=x;
-                clipped_y1=y;
-                outcode1=ComputeOutCode(clipped_x1,clipped_y1);
+                clipped_x2=x;
+                clipped_y2=y;
+                outcode1=ComputeOutCode(clipped_x2,clipped_y2);
             }
         }
     }while(!done);
     
     if(accept)
     {
-        // Draw clipped line in white
         glColor3f(1.0,1.0,1.0);
         glBegin(GL_LINES);
-            glVertex2d(clipped_x0,clipped_y0);
             glVertex2d(clipped_x1,clipped_y1);
+            glVertex2d(clipped_x2,clipped_y2);
         glEnd();
     }
 }
 
-outcode ComputeOutCode(double x, double y)
+int ComputeOutCode(double x, double y)
 {
-    outcode code=0;
+    int code=0; 
     if(y > ymax)
-        code = TOP;
+        code = TOP; 
     else if(y < ymin)
         code = BOTTOM;
     if(x > xmax)
@@ -99,8 +99,8 @@ void display()
     // Draw original line in green
     glColor3f(0.0,1.0,0.0);
     glBegin(GL_LINES);
-        glVertex2d(x0,y0);
         glVertex2d(x1,y1);
+        glVertex2d(x2,y2);
     glEnd();
     
     // Draw clipping window in red
@@ -113,7 +113,7 @@ void display()
     glEnd();
     
     // Draw clipped line
-    CohenSutherland(x0,y0,x1,y1);
+    CohenSutherland(x1,y1,x2,y2);
     glFlush();
 }
 

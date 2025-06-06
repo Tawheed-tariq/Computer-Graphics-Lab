@@ -15,37 +15,34 @@ vector<Point> polygon = {
     {-300, 0}, {-100, 200}, {0, 300}, {100, 0}, {0, -200}, {-200, -100}
 };
 
-// Clipping rectangle
 float xmin = -150, ymin = -100, xmax = 150, ymax = 100;
 
-// Clipped polygon result
 vector<Point> clippedPolygon;
 
 void myInit() {
-    glClearColor(0, 0, 0, 0); // Black background
+    glClearColor(0, 0, 0, 0); 
     glMatrixMode(GL_PROJECTION);
     gluOrtho2D(-H/2, H/2, -W/2, W/2);
 }
 
-// Helper function to compute intersection of edge with clip boundary
 Point intersect(Point a, Point b, int edge) {
     Point p;
     float m = (b.x - a.x != 0) ? (b.y - a.y) / (b.x - a.x) : 1e10;
 
     switch(edge) {
-        case 0: // Left
+        case 0: 
             p.x = xmin;
             p.y = a.y + m * (xmin - a.x);
             break;
-        case 1: // Right
+        case 1:
             p.x = xmax;
             p.y = a.y + m * (xmax - a.x);
             break;
-        case 2: // Bottom
+        case 2: 
             p.y = ymin;
             p.x = (m == 0) ? a.x : a.x + (1 / m) * (ymin - a.y);
             break;
-        case 3: // Top
+        case 3: 
             p.y = ymax;
             p.x = (m == 0) ? a.x : a.x + (1 / m) * (ymax - a.y);
             break;
@@ -56,10 +53,10 @@ Point intersect(Point a, Point b, int edge) {
 
 bool inside(Point p, int edge) {
     switch(edge) {
-        case 0: return p.x >= xmin;  // Left
-        case 1: return p.x <= xmax;  // Right
-        case 2: return p.y >= ymin;  // Bottom
-        case 3: return p.y <= ymax;  // Top
+        case 0: return p.x >= xmin;  
+        case 1: return p.x <= xmax;  
+        case 2: return p.y >= ymin;  
+        case 3: return p.y <= ymax;  
     }
     return false;
 }
@@ -75,15 +72,15 @@ void sutherlandHodgmanClip() {
             bool currIn = inside(curr, edge);
             bool prevIn = inside(prev, edge);
 
-            if (currIn && prevIn) {
+            if (currIn && prevIn) { //inside to inside: save current
                 output.push_back(curr);
-            } else if (!prevIn && currIn) {
+            } else if (!prevIn && currIn) { //outside to inside: save intersection and current
                 output.push_back(intersect(prev, curr, edge));
                 output.push_back(curr);
-            } else if (prevIn && !currIn) {
+            } else if (prevIn && !currIn) { //inside to outside: save intersection
                 output.push_back(intersect(prev, curr, edge));
             }
-            // else both outside: do nothing
+            // else both outside : save nothing
         }
         input = output;
     }
@@ -93,7 +90,6 @@ void sutherlandHodgmanClip() {
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Draw clipping rectangle in red
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINE_LOOP);
     glVertex2f(xmin, ymin);
@@ -102,13 +98,11 @@ void display() {
     glVertex2f(xmax, ymin);
     glEnd();
 
-    // Draw original polygon in cyan
     glColor3f(0.0, 1.0, 1.0);
     glBegin(GL_LINE_LOOP);
     for (auto &p : polygon) glVertex2f(p.x, p.y);
     glEnd();
 
-    // Draw clipped polygon in white
     glColor3f(1.0, 1.0, 1.0);
     glBegin(GL_LINE_LOOP);
     for (auto &p : clippedPolygon) glVertex2f(p.x, p.y);
