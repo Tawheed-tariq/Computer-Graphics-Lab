@@ -54,7 +54,6 @@ bool isConvexByAngles(const std::vector<Point>& poly) {
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Draw polygon
     glColor3f(0.2f, 0.5f, 0.9f);
     glBegin(GL_POLYGON);
     for (auto& p : polygon)

@@ -28,6 +28,8 @@ struct timeval lastUpdateTime;
 long long lastUpdateMillis = 0;
 
 void drawClockHands();
+void reshape(int w, int h);
+void idle();
 void drawClockFace();
 void drawHourMarkers();
 void drawNumbers();
@@ -58,6 +60,8 @@ int main(int argc, char** argv) {
     glutCreateWindow("Real-Time Clock Animation");
 
     glutDisplayFunc(drawClockHands);
+    glutReshapeFunc(reshape);
+    glutIdleFunc(idle);
     glutMouseFunc(mouseClick);
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -317,10 +321,10 @@ void drawButtons() {
         glColor3f(0.4, 0.4, 0.4);
     }
     glBegin(GL_QUADS);
-        glVertex2f(-0.9, -0.75);
-        glVertex2f(-0.6, -0.75);
-        glVertex2f(-0.6, -0.85);
-        glVertex2f(-0.9, -0.85);
+    glVertex2f(-0.9, -0.75);
+    glVertex2f(-0.6, -0.75);
+    glVertex2f(-0.6, -0.85);
+    glVertex2f(-0.9, -0.85);
     glEnd();
     
     // Manual Time button
@@ -330,28 +334,28 @@ void drawButtons() {
         glColor3f(0.4, 0.4, 0.4); 
     }
     glBegin(GL_QUADS);
-        glVertex2f(-0.5, -0.75);
-        glVertex2f(-0.2, -0.75);
-        glVertex2f(-0.2, -0.85);
-        glVertex2f(-0.5, -0.85);
+    glVertex2f(-0.5, -0.75);
+    glVertex2f(-0.2, -0.75);
+    glVertex2f(-0.2, -0.85);
+    glVertex2f(-0.5, -0.85);
     glEnd();
     
     // Set Time button
     glColor3f(0.3, 0.3, 0.7);
     glBegin(GL_QUADS);
-        glVertex2f(0.2, -0.75);
-        glVertex2f(0.45, -0.75);
-        glVertex2f(0.45, -0.85);
-        glVertex2f(0.2, -0.85);
+    glVertex2f(0.2, -0.75);
+    glVertex2f(0.45, -0.75);
+    glVertex2f(0.45, -0.85);
+    glVertex2f(0.2, -0.85);
     glEnd();
     
     // Reset button
     glColor3f(0.7, 0.3, 0.3);
     glBegin(GL_QUADS);
-        glVertex2f(0.55, -0.75);
-        glVertex2f(0.8, -0.75);
-        glVertex2f(0.8, -0.85);
-        glVertex2f(0.55, -0.85);
+    glVertex2f(0.55, -0.75);
+    glVertex2f(0.8, -0.75);
+    glVertex2f(0.8, -0.85);
+    glVertex2f(0.55, -0.85);
     glEnd();
     
     glColor3f(1.0, 1.0, 1.0);
@@ -367,10 +371,10 @@ void drawClockHands() {
     // Draw background
     glBegin(GL_QUADS);
     glColor3f(0.1, 0.1, 0.1);  
-        glVertex2f(-1, -1);
-        glVertex2f(1, -1);
-        glVertex2f(1, 1);
-        glVertex2f(-1, 1);
+    glVertex2f(-1, -1);
+    glVertex2f(1, -1);
+    glVertex2f(1, 1);
+    glVertex2f(-1, 1);
     glEnd();
     
     // decorative outer ring
@@ -429,8 +433,8 @@ void drawClockHands() {
     glLineWidth(5.0);
     glBegin(GL_LINES);
     glColor3f(1.0, 0.0, 0.0);  
-        glVertex2f(0, 0);
-        glVertex2f(HOUR_HAND_LENGTH * cos(hourAngle), 
+    glVertex2f(0, 0);
+    glVertex2f(HOUR_HAND_LENGTH * cos(hourAngle), 
                HOUR_HAND_LENGTH * sin(hourAngle));
     glEnd();
 
@@ -438,18 +442,18 @@ void drawClockHands() {
     glLineWidth(3.0);
     glBegin(GL_LINES);
     glColor3f(0.0, 1.0, 0.0);  
-        glVertex2f(0, 0);
-        glVertex2f(MINUTE_HAND_LENGTH * cos(minuteAngle), 
-                MINUTE_HAND_LENGTH * sin(minuteAngle));
+    glVertex2f(0, 0);
+    glVertex2f(MINUTE_HAND_LENGTH * cos(minuteAngle), 
+               MINUTE_HAND_LENGTH * sin(minuteAngle));
     glEnd();
 
     // Draw second hand
     glLineWidth(1.0);
     glBegin(GL_LINES);
     glColor3f(0.0, 0.7, 1.0);  
-        glVertex2f(0, 0);
-        glVertex2f(SECOND_HAND_LENGTH * cos(secondAngle), 
-                SECOND_HAND_LENGTH * sin(secondAngle));
+    glVertex2f(0, 0);
+    glVertex2f(SECOND_HAND_LENGTH * cos(secondAngle), 
+               SECOND_HAND_LENGTH * sin(secondAngle));
     glEnd();
     
     // center dot
@@ -618,4 +622,25 @@ void mouseClick(int button, int state, int x, int y) {
             }
         }
     }
+}
+
+void idle() {
+    glutPostRedisplay();
+    usleep(16000); 
+}
+
+void reshape(int w, int h) {
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    float aspect = (float)w / (float)h;
+    
+    if (w >= h) {
+        glOrtho(-1.0 * aspect, 1.0 * aspect, -1.0, 1.0, -1.0, 1.0);
+    } else {
+        glOrtho(-1.0, 1.0, -1.0 / aspect, 1.0 / aspect, -1.0, 1.0);
+    }
+    
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }

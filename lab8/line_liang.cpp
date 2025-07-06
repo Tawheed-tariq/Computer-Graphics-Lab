@@ -26,7 +26,7 @@ bool LiangBarsky(double x1, double y1, double x2, double y2,
     
     for(int k = 0; k < 4; k++)
     {
-        if(p[k] == 0 && q[k] < 0) //parallel and outside hence eleminate it
+        if(p[k] == 0 && q[k] < 0) 
             return false; 
         else
         {
@@ -43,11 +43,10 @@ bool LiangBarsky(double x1, double y1, double x2, double y2,
                     u2 = t;
             }
             
-            if(u1 > u2) //completely inside
+            if(u1 > u2) 
                 return false;
         }
     }
-    //here u2 > u1 so we calculate the clipped points
     *clipped_x1 = x1 + u1 * dx;
     *clipped_y1 = y1 + u1 * dy;
     *clipped_x2 = x1 + u2 * dx;
