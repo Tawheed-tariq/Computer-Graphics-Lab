@@ -1,91 +1,140 @@
-#include <GL/glut.h>
-#include <iostream>
-using namespace std;
+#include<stdio.h>
+#include<GL/glut.h>
 
-int windowHeight = 600;
+double xmin=100,ymin=100,xmax=300,ymax=300;
+double x1=20,y1=80,x2=420,y2=320; 
+const int RIGHT=2;
+const int LEFT=1;
+const int TOP=8;
+const int BOTTOM=4;
+int ComputeOutCode(double x, double y);
 
-void setPixel(int x, int y, float fillColor[3]) {
-    glColor3fv(fillColor);
-    glBegin(GL_POINTS);
-    glVertex2i(x, y);
-    glEnd();
-    glFlush();
-}
+void CohenSutherland(double x1, double y1, double x2, double y2)
+{
+    int outcode0, outcode1, outcodeOut;
+    bool accept=false, done=false;
+    outcode0=ComputeOutCode(x1,y1);
+    outcode1=ComputeOutCode(x2,y2);
+    double clipped_x1=x1, clipped_y1=y1, clipped_x2=x2, clipped_y2=y2;
 
-void getPixelColor(int x, int y, float color[3]) {
-    glReadPixels(x, windowHeight - y, 1, 1, GL_RGB, GL_FLOAT, color);
-}
+    do
+    {
+        if((outcode0 | outcode1) == 0) 
+        {   //completely inside
+            accept=true;
+            done=true;
+        }
+        else if((outcode0 & outcode1) != 0) 
+            //completely outside
+            done=true;
+        else
+        {
+            double x, y;
+            outcodeOut=outcode0?outcode0:outcode1;
+            if(outcodeOut & TOP)
+            {
+                x=clipped_x1+(clipped_x2-clipped_x1)*(ymax-clipped_y1)/(clipped_y2-clipped_y1);
+                y=ymax;
+            }
+            else if(outcodeOut & BOTTOM)
+            {
+                x=clipped_x1+(clipped_x2-clipped_x1)*(ymin-clipped_y1)/(clipped_y2-clipped_y1);
+                y=ymin;
+            }
+            else if(outcodeOut & RIGHT)
+            {
+                y=clipped_y1+(clipped_y2-clipped_y1)*(xmax-clipped_x1)/(clipped_x2-clipped_x1);
+                x=xmax;
+            }
+            else
+            {
+                y=clipped_y1+(clipped_y2-clipped_y1)*(xmin-clipped_x1)/(clipped_x2-clipped_x1);
+                x=xmin;
+            }
+            if(outcodeOut==outcode0)
+            {
+                clipped_x1=x;
+                clipped_y1=y;
+                outcode0=ComputeOutCode(clipped_x1,clipped_y1);
+            }
+            else
+            {
+                clipped_x2=x;
+                clipped_y2=y;
+                outcode1=ComputeOutCode(clipped_x2,clipped_y2);
+            }
+        }
+    }while(!done);
 
-bool isSameColor(float color1[3], float color2[3]) {
-    for (int i = 0; i < 3; ++i)
-        if (abs(color1[i] - color2[i]) > 0.01) return false;
-    return true;
-}
+    if(accept)
+    {
 
-void floodFill(int x, int y, float oldColor[3], float newColor[3]) {
-    float color[3];
-    getPixelColor(x, y, color);
+        glColor3f(1.0,1.0,1.0);
+        glBegin(GL_LINES);
 
-    if (isSameColor(color, oldColor)) {
-        setPixel(x, y, newColor);
-        floodFill(x + 1, y, oldColor, newColor);
-        floodFill(x - 1, y, oldColor, newColor);
-        floodFill(x, y + 1, oldColor, newColor);
-        floodFill(x, y - 1, oldColor, newColor);
+            glVertex2d(clipped_x1,clipped_y1);
+            glVertex2d(clipped_x2,clipped_y2);
+        glEnd();
     }
 }
 
-void drawPolygonWithColoredEdges() {
-    glBegin(GL_LINES);
-
-    glColor3f(1, 0, 0); // Red
-    glVertex2i(200, 200); glVertex2i(300, 200);
-
-    glColor3f(0, 1, 0); // Green
-    glVertex2i(300, 200); glVertex2i(275, 300);
-
-    glColor3f(0, 0, 1); // Blue
-    glVertex2i(275, 300); glVertex2i(225, 300);
-
-    glColor3f(1, 1, 0); // Yellow
-    glVertex2i(225, 300); glVertex2i(200, 200);
-
-    glEnd();
-    glFlush();
+int ComputeOutCode(double x, double y)
+{
+    int code=0; 
+    if(y > ymax)
+        code = TOP; 
+    else if(y < ymin)
+        code = BOTTOM;
+    if(x > xmax)
+        code = RIGHT;
+    else if(x < xmin)
+        code = LEFT;
+    return code;
 }
 
-void display() {
+void display()
+{
     glClear(GL_COLOR_BUFFER_BIT);
 
-    drawPolygonWithColoredEdges();
+    // Draw original line in green
+    glColor3f(0.0,1.0,0.0);
+    glBegin(GL_LINES);
 
+        glVertex2d(x1,y1);
+        glVertex2d(x2,y2);
+    glEnd();
+
+    // Draw clipping window in red
+    glColor3f(1.0,0.0,0.0);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(xmin, ymin);
+        glVertex2f(xmax, ymin);
+        glVertex2f(xmax, ymax);
+        glVertex2f(xmin, ymax);
+    glEnd();
+
+    // Draw clipped line
+    CohenSutherland(x1,y1,x2,y2);
     glFlush();
-    glFinish(); // Ensure drawing is complete
-
-    float oldColor[3];
-    getPixelColor(250, 250, oldColor);  // Get background color
-    float fillColor[3] = {1.0f, 0.0f, 1.0f};  // Magenta fill
-
-    floodFill(250, 250, oldColor, fillColor);
 }
 
-void init() {
-    glClearColor(0, 0, 0, 1); // Black background
+void myinit()
+{
+    glClearColor(0.0,0.0,0.0,1.0); // Black background
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0, 500, 0, 500); // Coordinate system
-    glPointSize(2);
+    gluOrtho2D(0.0,499.0,0.0,499.0);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(windowHeight, windowHeight);
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow("Flood Fill with Multi-Colored Edges");
-
-    init();
+    glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
+    glutInitWindowSize(500,500);
+    glutInitWindowPosition(0,0);
+    glutCreateWindow("Cohen-Sutherland Line Clipping");
     glutDisplayFunc(display);
+    myinit();
     glutMainLoop();
     return 0;
 }

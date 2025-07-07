@@ -19,32 +19,44 @@ void Line(int x1, int y1, int x2, int y2) {
     int dx = abs(x2 - x1);
     int dy = abs(y2 - y1);
     double slope = dy/dx;
-    int p = 2*dy - dx;
-    int x = x1, y = y1;
-    
-    while(x != x2){
-        if(slope < 1 && p < 0){
-            x++;
-            p = p + 2*dy;
-        }else if(slope >= 1 && p <0){
-            y++;
-            p = p + 2*dx;
-        }else if(slope < 1 && p >= 0){
-            x++;
-            y++;
-            p = p + 2*(dy - dx);
-        }else if(slope >= 1 && p >= 0){
-            y++;
-            x++;
-            p = p + 2*(dx - dy);
+    int p, x = x1, y = y1;
+
+    if(slope < 1){
+        p = 2*dy - dx;
+        
+        while(x != x2){
+            if(p < 0){
+                x++;
+                p = p + 2*dy;
+            }
+            else(p >= 0){
+                x++;
+                y++;
+                p = p + 2*(dy - dx);
+            }
+            setPixel(x, y);
         }
-        setPixel(x, y);
+    }else{
+        p = 2 * dx - dy;
+
+        while(y != y2){
+            if(p < 0){
+                y++;
+                p = p + 2*dx;
+            }
+            else(p >= 0){
+                x++;
+                y++;
+                p = p + 2*(dx - dy);
+            }
+            setPixel(x, y);
+        }
     }
 }
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
-    Line(100, 100, 500, 400); // Example line
+    Line(100, 100, 500, 400); 
     glFlush();
 }
 

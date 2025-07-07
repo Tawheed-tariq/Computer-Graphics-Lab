@@ -1,6 +1,5 @@
 #include <GL/glut.h>
-#include <iostream>
-using namespace std;
+#include <stdio.h>
 
 void drawLineDDA(float x1, float y1, float x2, float y2, float r, float g, float b) {
     float dx = x2 - x1, dy = y2 - y1, steps;

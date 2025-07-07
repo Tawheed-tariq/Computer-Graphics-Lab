@@ -470,10 +470,8 @@ void drawClockHands() {
     if (showTimeSettingUI) {
         drawTimeSettingUI();
     }
-    
-    glutSwapBuffers();
 }
-
+// reference: https://community.khronos.org/t/how-do-i-convert-mouse-position-cordinates-to-opengl-cordinates/67854
 void windowToOpenGL(int x, int y, float *ox, float *oy) {
     *ox = (2.0 * x / WINDOW_WIDTH) - 1.0;
     *oy = 1.0 - (2.0 * y / WINDOW_HEIGHT);

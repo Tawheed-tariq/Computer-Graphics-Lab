@@ -25,7 +25,11 @@ void drawLineWithCap(float x1, float y1, float x2, float y2, float width, int ca
     float nx = dx / len, ny = dy / len;      // Direction
     float px = -ny, py = nx;                 // Perpendicular
 
-    float hw = width / 2.0f;
+    float hw = width / 2.0f;glClear(GL_COLOR_BUFFER_BIT);
+    Line(100, 100, 500, 400); 
+    glFlush();
+}
+
 
     // Main rectangle (blue)
     glColor3f(0.0, 0.0, 1.0);

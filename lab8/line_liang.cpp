@@ -5,9 +5,7 @@
 double xmin=100, ymin=100, xmax=300, ymax=300;
 double x1=20, y1=80, x2=420, y2=320; 
 
-bool LiangBarsky(double x1, double y1, double x2, double y2, 
-                 double *clipped_x1, double *clipped_y1, 
-                 double *clipped_x2, double *clipped_y2)
+void LiangBarsky(double x1, double y1, double x2, double y2)
 {
     double dx = x2 - x1;
     double dy = y2 - y1;
@@ -27,7 +25,7 @@ bool LiangBarsky(double x1, double y1, double x2, double y2,
     for(int k = 0; k < 4; k++)
     {
         if(p[k] == 0 && q[k] < 0) 
-            return false; 
+            return; 
         else
         {
             double r_k = q[k] / p[k];
@@ -35,24 +33,35 @@ bool LiangBarsky(double x1, double y1, double x2, double y2,
             if(p[k] < 0)
             {
                 if(r_k > u1)
-                    u1 = t;
+                    u1 = r_k;
             }
             else
             {
                 if(r_k < u2)
-                    u2 = t;
+                    u2 = r_k;
             }
             
             if(u1 > u2) 
-                return false;
+                return;
         }
     }
-    *clipped_x1 = x1 + u1 * dx;
-    *clipped_y1 = y1 + u1 * dy;
-    *clipped_x2 = x1 + u2 * dx;
-    *clipped_y2 = y1 + u2 * dy;
+
+
+    double clipped_x1, clipped_y1, clipped_x2, clipped_y2;
+
+    clipped_x1 = x1 + u1 * dx;
+    clipped_y1 = y1 + u1 * dy;
+    clipped_x2 = x1 + u2 * dx;
+    clipped_y2 = y1 + u2 * dy;
+
     
-    return true;
+    glColor3f(1.0, 1.0, 1.0);
+    glBegin(GL_LINES);
+        glVertex2d(clipped_x1, clipped_y1);
+        glVertex2d(clipped_x2, clipped_y2);
+    glEnd();
+    
+    return;
 }
 
 void display()
@@ -73,16 +82,7 @@ void display()
         glVertex2f(xmin, ymax);
     glEnd();
     
-    double clipped_x1, clipped_y1, clipped_x2, clipped_y2;
-    
-    if(LiangBarsky(x1, y1, x2, y2, &clipped_x1, &clipped_y1, &clipped_x2, &clipped_y2))
-    {
-        glColor3f(1.0, 1.0, 1.0);
-        glBegin(GL_LINES);
-            glVertex2d(clipped_x1, clipped_y1);
-            glVertex2d(clipped_x2, clipped_y2);
-        glEnd();
-    }
+    LiangBarsky(x1, y1, x2, y2);
     
     glFlush();
 }

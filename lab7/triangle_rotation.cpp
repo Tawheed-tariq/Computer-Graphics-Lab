@@ -37,10 +37,8 @@ void rotateTriangle(float x1, float y1, float x2, float y2, float x3, float y3, 
         {0, 0, 1}
     };
     
-    // Composite transformation matrix T2 * R * T1
     float transform[3][3];
     
-    // First multiply R * T1
     float temp[3][3];
     for(int i = 0; i < 3; i++) {
         for(int j = 0; j < 3; j++) {
@@ -51,7 +49,6 @@ void rotateTriangle(float x1, float y1, float x2, float y2, float x3, float y3, 
         }
     }
     
-    // Then multiply T2 * (R * T1)
     for(int i = 0; i < 3; i++) {
         for(int j = 0; j < 3; j++) {
             transform[i][j] = 0;
@@ -61,7 +58,6 @@ void rotateTriangle(float x1, float y1, float x2, float y2, float x3, float y3, 
         }
     }
     
-    // Apply transformation to each vertex
     float vertices[3][3] = {
         {x1, x2, x3}, 
         {y1, y2, y3}, 

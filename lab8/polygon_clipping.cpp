@@ -28,23 +28,23 @@ void myInit() {
 Point intersect(Point a, Point b, int edge) {
     Point p;
     float m = (b.x - a.x != 0) ? (b.y - a.y) / (b.x - a.x) : 1e10;
-
+    int x1 = a.x , y1 = a.y;
     switch(edge) {
         case 0: 
             p.x = xmin;
-            p.y = a.y + m * (xmin - a.x);
+            p.y = y1 + m * (xmin - x1);
             break;
         case 1:
             p.x = xmax;
-            p.y = a.y + m * (xmax - a.x);
+            p.y = y1 + m * (xmax - x1);
             break;
         case 2: 
             p.y = ymin;
-            p.x = (m == 0) ? a.x : a.x + (1 / m) * (ymin - a.y);
+            p.x = (m == 0) ? x1 : x1 + (1 / m) * (ymin - y1);
             break;
         case 3: 
             p.y = ymax;
-            p.x = (m == 0) ? a.x : a.x + (1 / m) * (ymax - a.y);
+            p.x = (m == 0) ? x1 : x1 + (1 / m) * (ymax - y1);
             break;
     }
 
@@ -92,20 +92,20 @@ void display() {
 
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINE_LOOP);
-    glVertex2f(xmin, ymin);
-    glVertex2f(xmin, ymax);
-    glVertex2f(xmax, ymax);
-    glVertex2f(xmax, ymin);
+        glVertex2f(xmin, ymin);
+        glVertex2f(xmin, ymax);
+        glVertex2f(xmax, ymax);
+        glVertex2f(xmax, ymin);
     glEnd();
 
     glColor3f(0.0, 1.0, 1.0);
     glBegin(GL_LINE_LOOP);
-    for (auto &p : polygon) glVertex2f(p.x, p.y);
+        for (auto &p : polygon) glVertex2f(p.x, p.y);
     glEnd();
 
     glColor3f(1.0, 1.0, 1.0);
     glBegin(GL_LINE_LOOP);
-    for (auto &p : clippedPolygon) glVertex2f(p.x, p.y);
+        for (auto &p : clippedPolygon) glVertex2f(p.x, p.y);
     glEnd();
 
     glFlush();
